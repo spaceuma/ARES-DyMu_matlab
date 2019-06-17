@@ -21,3 +21,7 @@ Sánchez Ibáñez, J. Ricardo, Pérez del Pulgar, Carlos J., Azkarate, M., Gerde
 A C++ library containing this path planning algorithm can be found on the [ESA-PRL GitHub organization](https://github.com/esa-prl/planning-path_planning). It is used together with a [Rock Orogen Component](https://github.com/esa-prl/planning-orogen-path_planning) inside the navigation system of experimental rovers (see video below).
 
 **Video:** [Real Experimental Rover using DyMu](https://youtu.be/X4mihNTEVGw)
+
+### Python Implementation
+
+A Python version of this repository can be found [here](https://github.com/spaceuma/ARES-DyMu_python) 
