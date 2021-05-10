@@ -11,16 +11,47 @@
 % Path Extraction using Gradient Descent Method                           %
 %-------------------------------------------------------------------------%
 
-function [gamma,traversedCost,G1,G2] = getPathGDM(totalCostMap,initWaypoint,...
-                                                  endWaypoint,tau)   
-    [G1,G2] = calculateGradient(totalCostMap);
-    Geval = @(G,x)[interp2(1:size(totalCostMap,1),1:size(totalCostMap,2),G1,x(1),x(2)), ...
-                 interp2(1:size(totalCostMap,1),1:size(totalCostMap,2),G2,x(1),x(2)) ]; 
+function [gamma,traversedCost,Gx,Gy] = getPathGDM(varargin)
+%GETPATHGDM Path Extraction using Gradient Descent Method
+%   A path is extracted given the previously computed "totalCostMap", from
+%   the waypoint "initWaypoint" to "endWaypoint"; "tau" defines the
+%   separation between the generated path waypoints, as a percentage of the
+%   map resolution. "Gx" and "Gy" are the gradient maps of
+%   "totalCostMap" in the X and Y axes respectively, which reduce the
+%   algorithm computational cost if given.
+%   USAGE:
+%   [gamma,traversedCost,Gx,Gy] = getPathGDM(totalCostMap,initWaypoint,...
+%                                            endWaypoint,tau);
+%   [gamma,traversedCost,Gx,Gy] = getPathGDM(totalCostMap,initWaypoint,...
+%                                            endWaypoint,tau, Gx, Gy);
+    switch nargin
+        case 4
+            totalCostMap = varargin{1};
+            initWaypoint = varargin{2};
+            endWaypoint = varargin{3};
+            tau = varargin{4};
+            [Gx,Gy] = calculateGradient(totalCostMap);
+        case 6
+            totalCostMap = varargin{1};
+            initWaypoint = varargin{2};
+            endWaypoint = varargin{3};
+            tau = varargin{4};
+            Gx = varargin{5};
+            Gy = varargin{6};
+        otherwise
+            cprintf('err','Wrong number of inputs provided. Usage:\n')
+            cprintf('err','    getPathGDM(totalCostMap,initWaypoint,endWaypoint,tau);\n')
+            cprintf('err','    getPathGDM(totalCostMap,initWaypoint,endWaypoint,tau,Gx,Gy);\n')
+            error('Wrong number of inputs');
+    end
+    
+    Geval = @(G,x)[interp2(1:size(totalCostMap,1),1:size(totalCostMap,2),Gx,x(1),x(2)), ...
+                 interp2(1:size(totalCostMap,1),1:size(totalCostMap,2),Gy,x(1),x(2)) ]; 
     gamma = initWaypoint;
     traversedCost = 0;
     for k=1:15000/tau
-        dx = interpolatePoint(gamma(end,:),G1);
-        dy = interpolatePoint(gamma(end,:),G2);
+        dx = interpolatePoint(gamma(end,:),Gx);
+        dy = interpolatePoint(gamma(end,:),Gy);
         if (isnan(dx))||(isnan(dy))||... %In case it is degenerated
             isnan(interpolatePoint(gamma(end,:)-[dx dy],totalCostMap))
             nearN(1) = round(gamma(end,1));
